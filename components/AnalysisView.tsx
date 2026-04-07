@@ -10,7 +10,15 @@ interface AnalysisViewProps {
 
 const AnalysisView: React.FC<AnalysisViewProps> = ({ data, onContinue, onTemplateUpdate }) => {
   const [viewMode, setViewMode] = useState<'preview' | 'code'>('preview');
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const enhancedHtml = React.useMemo(() => {
+      return data.masterTemplate.replace(
+          /src=["']\{\{\s*([a-zA-Z0-9_]+)\s*\}\}["']/g, 
+          'src="https://placehold.co/600x200/e2e8f0/64748b?text=$1"'
+      ).replace(
+          /src=["']\{\{([^}]+)\}\}["']/g, // Fallback for complex keys
+          'src="https://placehold.co/600x200/e2e8f0/64748b?text=Image"'
+      );
+  }, [data.masterTemplate]);
 
   const downloadTemplate = () => {
     const blob = new Blob([data.masterTemplate], { type: 'text/html' });
@@ -23,27 +31,6 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ data, onContinue, onTemplat
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
-
-  useEffect(() => {
-    if (viewMode === 'preview' && iframeRef.current) {
-        const doc = iframeRef.current.contentDocument;
-        if (doc) {
-            doc.open();
-            // Enhancing preview: Replace handlebar image sources with actual placeholder images
-            // so the preview doesn't just show broken image icons.
-            const enhancedHtml = data.masterTemplate.replace(
-                /src=["']\{\{\s*([a-zA-Z0-9_]+)\s*\}\}["']/g, 
-                'src="https://placehold.co/600x200/e2e8f0/64748b?text=$1"'
-            ).replace(
-                /src=["']\{\{([^}]+)\}\}["']/g, // Fallback for complex keys
-                'src="https://placehold.co/600x200/e2e8f0/64748b?text=Image"'
-            );
-            
-            doc.write(enhancedHtml);
-            doc.close();
-        }
-    }
-  }, [viewMode, data.masterTemplate]);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -125,10 +112,10 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ data, onContinue, onTemplat
           <div className="flex-1 overflow-hidden relative bg-white w-full">
              {viewMode === 'preview' ? (
                  <iframe 
-                    ref={iframeRef}
                     className="w-full h-full border-none bg-white"
                     title="Master Template Preview"
-                    sandbox="allow-same-origin allow-scripts"
+                    srcDoc={enhancedHtml}
+                    sandbox=""
                  />
             ) : (
                 <textarea 

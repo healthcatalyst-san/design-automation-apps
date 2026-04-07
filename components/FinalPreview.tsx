@@ -10,22 +10,9 @@ interface FinalPreviewProps {
 }
 
 const FinalPreview: React.FC<FinalPreviewProps> = ({ html, onReset, onRefine, isRefining, onHtmlUpdate }) => {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [refineText, setRefineText] = useState('');
   const [showRefineInput, setShowRefineInput] = useState(false);
   const [viewMode, setViewMode] = useState<'preview' | 'code'>('preview');
-
-  useEffect(() => {
-    // Only update iframe if we are in preview mode
-    if (viewMode === 'preview' && iframeRef.current) {
-      const doc = iframeRef.current.contentDocument;
-      if (doc) {
-        doc.open();
-        doc.write(html);
-        doc.close();
-      }
-    }
-  }, [html, viewMode]);
 
   const downloadHtml = () => {
     const blob = new Blob([html], { type: 'text/html' });
@@ -145,10 +132,10 @@ const FinalPreview: React.FC<FinalPreviewProps> = ({ html, onReset, onRefine, is
              {viewMode === 'preview' ? (
                  <div className="w-full h-full max-w-[800px] mx-auto bg-white shadow-xl rounded-sm overflow-hidden">
                     <iframe
-                        ref={iframeRef}
                         title="Email Preview"
                         className="w-full h-full border-none"
-                        sandbox="allow-same-origin allow-scripts" 
+                        srcDoc={html}
+                        sandbox="" 
                     />
                  </div>
              ) : (
