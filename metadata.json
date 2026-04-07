@@ -1,0 +1,5 @@
+{
+  "name": "Design Automation App",
+  "description": "Intelligent system that analyzes multiple legacy HTML email templates to generate a unified, responsive Master Template and populates it with new content.",
+  "requestFramePermissions": []
+}
