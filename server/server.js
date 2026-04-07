@@ -43,6 +43,6 @@ app.use('/public', express.static(publicPath));
 app.use(express.static(staticPath));
 
 // Start the HTTP server
-app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Server listening on port ${port} at 0.0.0.0`);
 });
